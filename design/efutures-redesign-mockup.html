@@ -1,0 +1,512 @@
+<title>EFutures Redesign Concept</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  /* Palette sourced directly from the EFutures mark: brand blue #1B6CB5,
+     wordmark black #000000, tagline grey #9F9E9E. Committed to a white
+     ground on purpose (matches how the mark itself is presented) rather
+     than switching to a dark theme by OS preference. */
+  :root{
+    --bg:#FFFFFF;
+    --surface:#F6F9FC;
+    --surface-2:#EAF1F8;
+    --ink:#0D0F12;
+    --ink-soft:#54565C;
+    --ink-faint:#84868B;
+    --accent:#1B6CB5;
+    --accent-deep:#0F4C82;
+    --accent-tint:#E8F1FA;
+    --accent-ink:#FFFFFF;
+    --line:#E3E7EB;
+    --line-strong:#C7CDD3;
+    --shadow: 0 1px 0 rgba(13,15,18,0.05);
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Archivo', ui-sans-serif, system-ui, sans-serif;
+    padding-inline:clamp(18px, 4vw, 56px);
+  }
+  a{color:inherit;}
+  ::selection{background:var(--accent); color:var(--accent-ink);}
+
+  .mono{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    letter-spacing:0.03em;
+  }
+  .label{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  h1,h2,h3{
+    font-family:'Instrument Serif', Georgia, serif;
+    font-weight:400;
+    line-height:1.02;
+    text-wrap:balance;
+    margin:0;
+  }
+  .wrap{max-width:1180px; margin-inline:auto;}
+  .hairline{border-top:1px solid var(--line);}
+
+  /* ---------- concept tag ---------- */
+  .concept-tag{
+    position:fixed;
+    bottom:18px; right:18px;
+    z-index:50;
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    color:var(--ink-soft);
+    padding:7px 12px;
+    border-radius:3px;
+    font-size:10.5px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  /* ---------- nav ---------- */
+  header.nav{
+    max-width:1180px; margin-inline:auto;
+    display:flex; align-items:center; justify-content:space-between;
+    padding-block:22px;
+    border-bottom:1px solid var(--line);
+  }
+  .wordmark{height:30px; width:auto; display:block;}
+  nav.links{display:flex; gap:clamp(14px,3vw,32px); align-items:center;}
+  nav.links a{
+    font-size:13.5px; text-decoration:none; color:var(--ink-soft);
+    transition:color .15s ease;
+  }
+  nav.links a:hover{color:var(--ink);}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--ink); color:var(--bg);
+    padding:11px 18px;
+    border-radius:2px;
+    font-size:13px; font-weight:600;
+    text-decoration:none;
+    border:1px solid var(--ink);
+    transition:background .15s ease, color .15s ease, transform .1s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .btn:active{transform:translateY(1px);}
+  .btn.ghost{
+    background:transparent; color:var(--ink); border:1px solid var(--line-strong);
+  }
+  .btn.ghost:hover{border-color:var(--accent); color:var(--accent); background:transparent;}
+  .navcta{display:none;}
+  @media(min-width:720px){.navcta{display:inline-flex;}}
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:1180px; margin-inline:auto;
+    padding-block:clamp(48px,8vw,88px) clamp(40px,6vw,64px);
+    display:grid;
+    grid-template-columns:1fr;
+    gap:28px;
+    position:relative;
+  }
+  .hero-frame{
+    position:relative;
+    border:1px solid var(--line);
+    padding:clamp(28px,5vw,56px);
+    border-radius:2px;
+  }
+  .hero-frame::before,.hero-frame::after,
+  .hero-frame .tick.tl, .hero-frame .tick.br{
+    content:"";
+    position:absolute;
+    width:14px; height:14px;
+    border-color:var(--accent);
+  }
+  .hero-frame::before{ top:-1px; left:-1px; border-top:2px solid var(--accent); border-left:2px solid var(--accent);}
+  .hero-frame::after{ bottom:-1px; right:-1px; border-bottom:2px solid var(--accent); border-right:2px solid var(--accent);}
+  .hero-eyebrow{
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:22px;
+  }
+  .hero-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--accent);}
+  h1.hero-title{
+    font-size:clamp(2.6rem, 6.4vw, 5.2rem);
+    max-width:16ch;
+  }
+  h1.hero-title i{color:var(--accent); font-style:italic;}
+  .hero-sub{
+    margin-top:24px;
+    font-size:clamp(1rem,1.6vw,1.2rem);
+    color:var(--ink-soft);
+    max-width:56ch;
+    line-height:1.55;
+  }
+  .hero-ctas{display:flex; flex-wrap:wrap; gap:14px; margin-top:32px;}
+  .hero-meta{
+    display:flex; justify-content:space-between; gap:16px;
+    margin-top:40px; padding-top:20px;
+    border-top:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .hero-meta .label{color:var(--ink-faint);}
+
+  /* ---------- trust strip ---------- */
+  .trust{
+    max-width:1180px; margin-inline:auto;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  @media(min-width:640px){.trust{grid-template-columns:repeat(5,1fr);}}
+  .trust-item{
+    padding:20px 14px;
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  @media(min-width:640px){.trust-item{border-bottom:none;}}
+  .trust-item:last-child{border-right:none;}
+  .trust-item b{display:block; color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:15px; margin-bottom:4px; font-variant-numeric:tabular-nums;}
+
+  /* ---------- section shell ---------- */
+  section{max-width:1180px; margin-inline:auto; padding-block:clamp(56px,8vw,96px);}
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    gap:24px; margin-bottom:clamp(32px,5vw,56px);
+    flex-wrap:wrap;
+  }
+  .section-head h2{font-size:clamp(1.9rem,3.6vw,3rem);}
+  .section-head .label{max-width:32ch; text-align:right;}
+
+  /* ---------- capabilities ---------- */
+  .cap-list{border-top:1px solid var(--line-strong);}
+  .cap-row{
+    display:grid;
+    grid-template-columns:64px 1fr;
+    gap:20px;
+    padding-block:26px;
+    border-bottom:1px solid var(--line);
+    align-items:baseline;
+    transition:background .15s ease;
+  }
+  @media(min-width:760px){.cap-row{grid-template-columns:80px 1.1fr 1.4fr;}}
+  .cap-row:hover{background:var(--surface-2);}
+  .cap-idx{font-family:'IBM Plex Mono',monospace; color:var(--accent); font-size:14px;}
+  .cap-row h3{font-size:clamp(1.3rem,2.4vw,1.7rem);}
+  .cap-row p{margin:6px 0 0; color:var(--ink-soft); font-size:14.5px; line-height:1.6; max-width:52ch;}
+  @media(min-width:760px){.cap-row p{margin-top:0;}}
+
+  /* ---------- why us ---------- */
+  .why{
+    display:grid; grid-template-columns:1fr; gap:40px;
+  }
+  @media(min-width:860px){.why{grid-template-columns:1fr 1fr;}}
+  .why h2{font-size:clamp(2rem,4vw,3rem); max-width:14ch;}
+  .quote-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:clamp(24px,4vw,36px);
+    border-radius:2px;
+    border-left:3px solid var(--accent);
+  }
+  .quote-card p{
+    font-family:'Instrument Serif', Georgia, serif;
+    font-style:italic;
+    font-size:clamp(1.25rem,2.4vw,1.6rem);
+    line-height:1.4;
+    margin:0 0 18px;
+  }
+  .quote-attr{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--ink-soft);}
+  .quote-attr .swatch{width:28px;height:28px;border-radius:50%;background:var(--surface-2); border:1px solid var(--line-strong); display:flex;align-items:center;justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+
+  /* ---------- work grid ---------- */
+  .work-grid{
+    display:grid; grid-template-columns:1fr; gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  @media(min-width:760px){.work-grid{grid-template-columns:1fr 1fr;}}
+  .work-card{
+    background:var(--surface);
+    padding:clamp(24px,3.4vw,34px);
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .work-top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px;}
+  .work-card h3{font-size:clamp(1.4rem,2.6vw,1.8rem);}
+  .work-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); border:1px solid currentColor; padding:3px 8px; border-radius:20px; white-space:nowrap;
+  }
+  .work-meta{display:grid; grid-template-columns:1fr; gap:10px; margin-top:6px;}
+  .work-meta div{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+  .work-meta b{color:var(--ink); font-weight:600; display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-family:'IBM Plex Mono',monospace; margin-bottom:3px; color:var(--ink-faint);}
+  .work-outcome{
+    margin-top:auto; padding-top:14px; border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent);
+  }
+
+  /* ---------- faq ---------- */
+  .faq{border-top:1px solid var(--line-strong);}
+  details{border-bottom:1px solid var(--line); padding-block:18px;}
+  summary{
+    cursor:pointer; list-style:none;
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    font-size:clamp(1rem,1.8vw,1.2rem);
+    font-family:'Instrument Serif', Georgia, serif;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary .plus{font-family:'IBM Plex Mono',monospace; color:var(--accent); font-size:18px; transition:transform .2s ease;}
+  details[open] summary .plus{transform:rotate(45deg);}
+  details p{color:var(--ink-soft); font-size:14.5px; line-height:1.65; max-width:62ch; margin:14px 0 4px;}
+
+  /* ---------- final cta ---------- */
+  .final-cta{
+    border:1px solid var(--line);
+    padding:clamp(40px,7vw,80px) clamp(24px,5vw,56px);
+    text-align:left;
+    display:flex; flex-direction:column; gap:26px;
+    position:relative;
+  }
+  .final-cta h2{font-size:clamp(2.2rem,5vw,3.6rem); max-width:16ch;}
+
+  /* ---------- footer ---------- */
+  footer{
+    max-width:1180px; margin-inline:auto;
+    padding-block:40px 60px;
+    border-top:1px solid var(--line);
+    display:flex; flex-direction:column; gap:28px;
+  }
+  .foot-top{display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px;}
+  .foot-col .label{margin-bottom:12px; display:block;}
+  .foot-col a{display:block; font-size:13.5px; color:var(--ink-soft); text-decoration:none; margin-bottom:8px;}
+  .foot-col a:hover{color:var(--accent);}
+  .foot-bottom{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-faint);}
+
+  @media (prefers-reduced-motion: no-preference){
+    .hero-frame > *{animation:rise .6s ease both;}
+    .hero-frame .hero-sub{animation-delay:.08s;}
+    .hero-frame .hero-ctas{animation-delay:.16s;}
+    .hero-frame .hero-meta{animation-delay:.22s;}
+  }
+  @keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+</style>
+
+<div class="concept-tag">Redesign concept — not the live site</div>
+
+<header class="nav">
+  <img class="wordmark" src="/efutures-logo.png" alt="EFutures — Inspiring Solutions">
+  <nav class="links">
+    <a href="#work">Work</a>
+    <a href="#services">Services</a>
+    <a href="#why">About</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact" class="btn navcta">Book a Discovery Call</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-frame">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      <span class="label">Est. 2001 — Software Product Engineering</span>
+    </div>
+    <h1 class="hero-title">Software engineering, <i>accelerated</i> by AI.</h1>
+    <p class="hero-sub">For 25 years, EFutures has built the enterprise software, data platforms, and digital products global businesses run on. Today, AI‑native engineering means we ship faster without cutting corners.</p>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn">Book a Discovery Call</a>
+      <a href="#work" class="btn ghost">See Our Work</a>
+    </div>
+    <div class="hero-meta">
+      <span class="label">Colombo · Remote‑embedded teams</span>
+      <span class="label">Fig. 01 — Homepage, v2</span>
+    </div>
+  </div>
+</div>
+
+<div class="trust">
+  <div class="trust-item"><b>25+ yrs</b>Track record</div>
+  <div class="trust-item"><b>AWS · MS</b>Certified partner</div>
+  <div class="trust-item"><b>ISO</b>Certified delivery</div>
+  <div class="trust-item"><b>4.4 ★</b>113 Google reviews</div>
+  <div class="trust-item"><b>SLASSCOM</b>Member</div>
+</div>
+
+<section id="services">
+  <div class="section-head">
+    <h2>What we build</h2>
+    <span class="label">Five practices, one delivery team — not ten disconnected line items</span>
+  </div>
+  <div class="cap-list">
+    <div class="cap-row">
+      <span class="cap-idx">01</span>
+      <h3>AI &amp; Data Engineering</h3>
+      <p>Generative AI, ML pipelines, and master data management that turn raw operational data into decisions.</p>
+    </div>
+    <div class="cap-row">
+      <span class="cap-idx">02</span>
+      <h3>Enterprise Software</h3>
+      <p>Custom platforms engineered to run mission‑critical operations at scale, from spec through DevOps.</p>
+    </div>
+    <div class="cap-row">
+      <span class="cap-idx">03</span>
+      <h3>Cloud &amp; DevOps</h3>
+      <p>AWS‑native architecture, migration, and managed infrastructure built for uptime and cost control.</p>
+    </div>
+    <div class="cap-row">
+      <span class="cap-idx">04</span>
+      <h3>Mobile Development</h3>
+      <p>Native and cross‑platform apps engineered for performance, not just feature parity.</p>
+    </div>
+    <div class="cap-row">
+      <span class="cap-idx">05</span>
+      <h3>Dedicated Teams</h3>
+      <p>Senior engineers embedded in your team in weeks — with the QA and security practice built in.</p>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="why">
+    <div>
+      <span class="label">Why EFutures</span>
+      <h2 style="margin-top:16px;">Two decades. Zero shortcuts.</h2>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.7; margin-top:20px; max-width:46ch;">We've partnered with founders and enterprises for up to ten years at a stretch — not because of a contract, but because the work holds up. Every engagement runs through the same certified process: ISO‑audited delivery, senior engineering review, and a security practice built for regulated industries.</p>
+    </div>
+    <div class="quote-card">
+      <p>"Working with EFutures for seven years, their expertise has been invaluable to building and scaling our platform."</p>
+      <div class="quote-attr">
+        <span class="swatch">RR</span>
+        <span>Renato Romani — Founder, Sinque</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="section-head">
+    <h2>Proof of work</h2>
+    <span class="label">Selected engagements — challenge, build, outcome</span>
+  </div>
+  <div class="work-grid">
+    <div class="work-card">
+      <div class="work-top">
+        <h3>Weekli</h3>
+        <span class="work-tag">Product build</span>
+      </div>
+      <div class="work-meta">
+        <div><b>Challenge</b>A subscription commerce product with no existing codebase and a hard launch date.</div>
+        <div><b>What we built</b>The entire platform from scratch — architecture, checkout, and admin tooling.</div>
+      </div>
+      <div class="work-outcome">→ 0 to production-ready in one engagement</div>
+    </div>
+    <div class="work-card">
+      <div class="work-top">
+        <h3>MBT</h3>
+        <span class="work-tag">10‑yr partnership</span>
+      </div>
+      <div class="work-meta">
+        <div><b>Challenge</b>Long‑running enterprise software needing continuous accuracy under regulatory scrutiny.</div>
+        <div><b>What we built</b>An evolving platform maintained and extended over a decade of releases.</div>
+      </div>
+      <div class="work-outcome">→ 10 years, zero missed releases</div>
+    </div>
+    <div class="work-card">
+      <div class="work-top">
+        <h3>Moovparcel</h3>
+        <span class="work-tag">Logistics tech</span>
+      </div>
+      <div class="work-meta">
+        <div><b>Challenge</b>A logistics operation needing responsive, always‑on engineering support.</div>
+        <div><b>What we built</b>Ongoing platform development with rapid turnaround on operational requests.</div>
+      </div>
+      <div class="work-outcome">→ Responsive delivery, on schedule</div>
+    </div>
+    <div class="work-card">
+      <div class="work-top">
+        <h3>Sinque</h3>
+        <span class="work-tag">7‑yr partnership</span>
+      </div>
+      <div class="work-meta">
+        <div><b>Challenge</b>A growing platform requiring deep, sustained engineering expertise.</div>
+        <div><b>What we built</b>Continuous product engineering across seven years of scale‑up.</div>
+      </div>
+      <div class="work-outcome">→ 7 years and counting</div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="section-head">
+    <h2>Before you ask</h2>
+    <span class="label">The questions every serious buyer raises first</span>
+  </div>
+  <div class="faq">
+    <details open>
+      <summary>How do you ensure code quality and security with an offshore team?<span class="plus">+</span></summary>
+      <p>Every engagement runs through ISO‑certified delivery processes, senior code review, and a dedicated QA/security practice — the same standard whether the team sits beside you or across a timezone.</p>
+    </details>
+    <details>
+      <summary>Who owns the IP for what you build?<span class="plus">+</span></summary>
+      <p>You do. IP ownership terms are set out before work begins, with no ambiguity at handover.</p>
+    </details>
+    <details>
+      <summary>How fast can a dedicated team start?<span class="plus">+</span></summary>
+      <p>Most engagements assemble a senior team within weeks, not months, drawing on 25 years of pre‑vetted engineering talent.</p>
+    </details>
+    <details>
+      <summary>What time zones do you cover?<span class="plus">+</span></summary>
+      <p>Our teams structure working hours around overlap with US, UK, and APAC clients — coordinated explicitly at kickoff.</p>
+    </details>
+    <details>
+      <summary>What happens after launch?<span class="plus">+</span></summary>
+      <p>Support and maintenance continue post‑launch under the same team that built the product, not a handoff to a separate desk.</p>
+    </details>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="final-cta">
+    <span class="label">Fig. 09 — Contact</span>
+    <h2>Have a project in mind?<br>Let's talk about what you're building.</h2>
+    <div class="hero-ctas">
+      <a href="#" class="btn">Book a Discovery Call</a>
+      <a href="#" class="btn ghost">Download Capability Deck</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-top">
+    <div class="foot-col">
+      <img class="wordmark" style="height:24px; margin-bottom:14px;" src="/efutures-logo.png" alt="EFutures — Inspiring Solutions">
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#why">About</a>
+      <a href="#contact">Careers</a>
+    </div>
+    <div class="foot-col">
+      <span class="label">Practices</span>
+      <a href="#services">AI &amp; Data Engineering</a>
+      <a href="#services">Enterprise Software</a>
+      <a href="#services">Cloud &amp; DevOps</a>
+      <a href="#services">Dedicated Teams</a>
+    </div>
+    <div class="foot-col">
+      <span class="label">Connect</span>
+      <a href="#">LinkedIn</a>
+      <a href="#">Facebook</a>
+      <a href="#">hello@efuturesworld.com</a>
+    </div>
+  </div>
+  <div class="hairline"></div>
+  <div class="foot-bottom">
+    <span>© 2026 EFutures. Redesign concept prepared for internal review.</span>
+    <span class="mono">Palette from the mark — #1B6CB5 · #000000 · #9F9E9E</span>
+  </div>
+</footer>
