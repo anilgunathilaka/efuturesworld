@@ -264,13 +264,14 @@ export default function Hero() {
         link.tabIndex = active ? 0 : -1;
       }
 
-      // Work opens only after corners are covered (no seam possible)
-      const opStart = vh * 0.42;
-      const opEnd = vh * 0.22;
+      // Open Work as soon as the viewport is ink (pastEdge) — waiting for
+      // corner fill left a long blank-black hold before the headline appeared.
+      const opStart = vh * 0.78;
+      const opEnd = vh * 0.32;
       const posOp = easeOutCubic(
         Math.min(1, Math.max(0, (opStart - wr.top) / Math.max(1, opStart - opEnd))),
       );
-      const sectionOp = posOp * (filled ? 1 : 0);
+      const sectionOp = posOp * (pastEdge || filled ? 1 : 0);
       workOver.style.opacity = String(sectionOp);
       workOver.style.pointerEvents = sectionOp < 0.05 ? "none" : "auto";
       workOver.dataset.sectionOp = sectionOp.toFixed(3);

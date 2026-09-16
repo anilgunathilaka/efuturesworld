@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   caseStudies,
@@ -6,7 +10,8 @@ import {
   type CaseStudy,
 } from "@/content/case-studies";
 
-export const workContainerGutter = "mx-auto max-w-content px-4 sm:px-8 lg:px-14";
+export const workContainerGutter =
+  "mx-auto max-w-[min(100%,1152px)] px-4 sm:px-8 lg:px-14";
 
 function ArrowUpRight({ className = "" }: { className?: string }) {
   return (
@@ -24,6 +29,40 @@ function ArrowUpRight({ className = "" }: { className?: string }) {
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SpeakerIcon({ on }: { on: boolean }) {
+  if (on) {
+    return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+        <path
+          d="M2.5 6.2v3.6h2.2L8 13V3L4.7 6.2H2.5Z"
+          fill="currentColor"
+        />
+        <path
+          d="M10.2 5.4a3.2 3.2 0 0 1 0 5.2M11.8 3.6a5.4 5.4 0 0 1 0 8.8"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M2.5 6.2v3.6h2.2L8 13V3L4.7 6.2H2.5Z"
+        fill="currentColor"
+      />
+      <path
+        d="M11 5.5 14.5 10.5M14.5 5.5 11 10.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -76,6 +115,75 @@ function CardOverlay({ study }: { study: CaseStudy }) {
   );
 }
 
+function CardVideoBackground({
+  src,
+  fallbackFrom,
+  fallbackTo,
+  accent,
+}: {
+  src: string;
+  fallbackFrom: string;
+  fallbackTo: string;
+  accent: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [soundOn, setSoundOn] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !soundOn;
+    void video.play().catch(() => {});
+  }, [soundOn]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    void video.play().catch(() => {});
+  }, []);
+
+  return (
+    <>
+      <div
+        aria-hidden
+        className="absolute inset-0 overflow-hidden transition-transform duration-500 ease-standard motion-safe:group-hover:scale-[1.03]"
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 60% at 30% 20%, ${accent}55 0%, transparent 55%),
+              linear-gradient(165deg, ${fallbackFrom} 0%, ${fallbackTo} 55%, #0a0c10 100%)
+            `,
+          }}
+        />
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+        >
+          <source src={src} type="video/mp4" />
+        </video>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setSoundOn((current) => !current)}
+        className="absolute top-4 right-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-bg/25 bg-ink/55 text-bg backdrop-blur-md transition-colors duration-200 hover:border-accent hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:top-5 sm:right-5"
+        aria-pressed={soundOn}
+        aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
+      >
+        <SpeakerIcon on={soundOn} />
+      </button>
+    </>
+  );
+}
+
 /** Arcads-style bento card: photo plane, tag, mid overlay, footer CTA row */
 export function WorkShowcaseCard({
   study,
@@ -88,49 +196,87 @@ export function WorkShowcaseCard({
   /** Light variant for /work detail listing */
   compact?: boolean;
 }) {
+  const hasVideo = Boolean(study.cardVideo) && !compact;
+  const hasImage = Boolean(study.cardImage) && !compact && !hasVideo;
+  const sizeClass = tall
+    ? "min-h-[min(672px,86vh)] md:min-h-0 md:row-span-2"
+    : compact
+      ? "min-h-[280px]"
+      : "min-h-[min(312px,43vh)] md:min-h-0";
+
   return (
-    <Link
-      href={`/work#${study.slug}`}
-      aria-label={`${study.client}: ${study.cardTitle}`}
-      className={`group relative flex flex-col overflow-hidden rounded-[1.75rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${
-        tall
-          ? "min-h-[min(560px,72vh)] md:min-h-0 md:row-span-2"
-          : compact
-            ? "min-h-[280px]"
-            : "min-h-[min(260px,36vh)] md:min-h-0"
-      }`}
+    <article
+      className={`group relative flex flex-col overflow-hidden rounded-[1.75rem] ${sizeClass}`}
     >
-      {/* Image / atmosphere plane */}
-      <div
-        aria-hidden
-        className="absolute inset-0 transition-transform duration-500 ease-standard motion-safe:group-hover:scale-[1.03]"
-        style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 30% 20%, ${study.cover.accent}55 0%, transparent 55%),
-            linear-gradient(165deg, ${study.cover.from} 0%, ${study.cover.to} 55%, #0a0c10 100%)
-          `,
-        }}
-      />
+      {hasVideo && study.cardVideo ? (
+        <CardVideoBackground
+          src={study.cardVideo}
+          fallbackFrom={study.cover.from}
+          fallbackTo={study.cover.to}
+          accent={study.cover.accent}
+        />
+      ) : hasImage && study.cardImage ? (
+        <div
+          aria-hidden
+          className="absolute inset-0 overflow-hidden transition-transform duration-500 ease-standard motion-safe:group-hover:scale-[1.03]"
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `
+                radial-gradient(ellipse 80% 60% at 30% 20%, ${study.cover.accent}55 0%, transparent 55%),
+                linear-gradient(165deg, ${study.cover.from} 0%, ${study.cover.to} 55%, #0a0c10 100%)
+              `,
+            }}
+          />
+          <Image
+            src={study.cardImage}
+            alt=""
+            fill
+            sizes="(min-width: 768px) 40vw, 100vw"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <div
+          aria-hidden
+          className="absolute inset-0 transition-transform duration-500 ease-standard motion-safe:group-hover:scale-[1.03]"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 60% at 30% 20%, ${study.cover.accent}55 0%, transparent 55%),
+              linear-gradient(165deg, ${study.cover.from} 0%, ${study.cover.to} 55%, #0a0c10 100%)
+            `,
+          }}
+        />
+      )}
       <div
         aria-hidden
         className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:18px_18px] opacity-40"
       />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent"
+      {hasImage ? (
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-ink/30"
+        />
+      ) : null}
+
+      {!compact && !hasVideo ? <CardOverlay study={study} /> : null}
+
+      <Link
+        href={`/work#${study.slug}`}
+        aria-label={`${study.client}: ${study.cardTitle}`}
+        className="absolute inset-0 z-10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
       />
 
-      {!compact ? <CardOverlay study={study} /> : null}
-
       {/* Top tag */}
-      <div className="relative z-10 flex items-start p-4 sm:p-5">
+      <div className="pointer-events-none relative z-[11] flex items-start p-4 sm:p-5">
         <span className="rounded-md bg-bg/20 px-2.5 py-1 text-[12px] font-medium tracking-wide text-bg backdrop-blur-md">
           {study.cardTag}
         </span>
       </div>
 
       {/* Footer: accent arrow + title / blurb */}
-      <div className="relative z-10 mt-auto flex items-end gap-3.5 p-4 sm:gap-4 sm:p-5">
+      <div className="pointer-events-none relative z-[11] mt-auto flex items-end gap-3.5 p-4 sm:gap-4 sm:p-5">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-bg transition-colors duration-200 group-hover:bg-accent-deep sm:h-11 sm:w-11">
           <ArrowUpRight className="sm:h-4 sm:w-4" />
         </span>
@@ -141,7 +287,7 @@ export function WorkShowcaseCard({
           </p>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
 
@@ -150,7 +296,7 @@ export function WorkShowcaseGrid() {
   const [featured, ...stacked] = getFeaturedCaseStudies();
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:min-h-[min(640px,78vh)] md:grid-cols-2 md:grid-rows-2 md:gap-4 lg:gap-5">
+    <div className="grid grid-cols-1 gap-3 md:min-h-[min(768px,94vh)] md:grid-cols-2 md:grid-rows-2 md:gap-4 lg:gap-5">
       <WorkShowcaseCard study={featured} tall />
       {stacked.map((study) => (
         <WorkShowcaseCard key={study.slug} study={study} />
@@ -191,11 +337,15 @@ export function WorkShowcaseSection({
       >
         <h2
           data-work-open-headline={animateOpen ? "" : undefined}
-          className={`mx-auto max-w-[18ch] text-balance text-center font-display text-[clamp(1.85rem,4.2vw,3rem)] font-semibold leading-[1.15] tracking-[-0.025em] text-bg ${
+          className={`mx-auto w-full max-w-[min(100%,42rem)] text-center font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-semibold leading-[1.2] tracking-[-0.025em] text-bg ${
             animateOpen ? "opacity-0" : ""
           }`}
         >
-          {workSectionHead.headline}
+          {workSectionHead.headlineLines.map((line) => (
+            <span key={line} className="block whitespace-nowrap">
+              {line}
+            </span>
+          ))}
         </h2>
 
         <div

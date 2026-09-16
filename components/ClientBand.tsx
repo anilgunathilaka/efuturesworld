@@ -6,10 +6,6 @@ export default function ClientBand() {
 
   return (
     <div className="relative z-50 bg-bg py-8 sm:py-10">
-      <span className="mb-6 block text-center font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
-        Trusted by teams at
-      </span>
-
       <div className="group overflow-hidden">
         <div className="flex w-max animate-[marquee_32s_linear_infinite] items-center gap-16 motion-reduce:animate-none group-hover:[animation-play-state:paused]">
           {track.map((client, i) => (

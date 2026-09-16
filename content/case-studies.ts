@@ -18,6 +18,10 @@ export type CaseStudy = {
     text: string;
     subtext?: string;
   };
+  /** Optional looping background video on the bento card (muted until user enables sound) */
+  cardVideo?: string;
+  /** Optional still background image on the bento card */
+  cardImage?: string;
   cover: {
     from: string;
     to: string;
@@ -30,6 +34,10 @@ export const workSectionHead = {
   eyebrow: "Our Work",
   /** Opens on the hero black handoff — not a separate delayed band */
   headline: "Build software that looks like your product, not a template.",
+  headlineLines: [
+    "Build software that looks like",
+    "your product, not a template.",
+  ] as const,
   headingLead: "The embedded engineering team for founders who are",
   headingAccent: "serious about product.",
   description:
@@ -65,15 +73,11 @@ export const caseStudies: CaseStudy[] = [
     outcome:
       "\"Helping us reach thousands of users and deliver vital health data. A truly exceptional partnership.\" — Renato Romani, Founder & CTO",
     tags: ["Health Platform", "Product Build"],
-    cardTag: "Health",
-    cardTitle: "Ship platforms that carry real lives.",
+    cardTag: "AI-FIRST",
+    cardTitle: "AI isn't an add-on.",
     cardBlurb:
-      "Seven years behind Sinque — architecture, delivery, and the trust health data demands.",
-    cardOverlay: {
-      kind: "chip",
-      text: "Health platform for thousands of users",
-      subtext: "7-year partnership",
-    },
+      "We design intelligence into your product, workflows and data from day one.",
+    cardVideo: "/video/AI-FIRST.mp4",
     cover: { from: "#1a3a2a", to: "#0B1F33", accent: "#3D8B6E" },
     metricPendingNote:
       "Pending confirmation from EFutures: one hard number — active users, uptime, or data volume — to sit alongside \"thousands of users.\"",
@@ -89,14 +93,15 @@ export const caseStudies: CaseStudy[] = [
     outcome:
       "\"MBT has greatly benefited from our partnership with EFutures which has allowed us to provide world-class software solutions to our Clients.\" — Reid Stephens, President of Biz Ops",
     tags: ["Enterprise", "Web Development"],
-    cardTag: "Enterprise",
-    cardTitle: "Keep people relying on it.",
+    cardTag: "BESPOKE",
+    cardTitle: "No templates. No forced workflows.",
     cardBlurb:
-      "A decade on the same platform — still accurate under real operational scrutiny.",
+      "We engineer systems around how your business actually works.",
     cardOverlay: {
       kind: "statement",
-      text: "Still running.",
+      text: "Your business. Your software.",
     },
+    cardImage: "/images/bespoke-collab.webp",
     cover: { from: "#2a1f18", to: "#0F4C82", accent: "#C4A574" },
   },
   {
@@ -109,14 +114,14 @@ export const caseStudies: CaseStudy[] = [
     outcome:
       '"They helped us build the entire system from scratch... I\'m incredibly happy and satisfied with our collaboration." — Ludvig Odin, Product Owner',
     tags: ["Digital Product", "Zero-to-Launch"],
-    cardTag: "Product",
-    cardTitle: "Make every release look intentional.",
-    cardBlurb:
-      "Zero to launch — architecture, build, test, and five years of ownership after.",
+    cardTag: "EVOLVE",
+    cardTitle: "From first release to enterprise scale.",
+    cardBlurb: "Your software evolves without starting over.",
     cardOverlay: {
-      kind: "accent",
-      text: "from scratch",
+      kind: "statement",
+      text: "Built to keep moving.",
     },
+    cardImage: "/images/evolve-collab.webp",
     cover: { from: "#1a1520", to: "#245B8A", accent: "#0093FD" },
   },
   {
