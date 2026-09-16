@@ -5,7 +5,7 @@ export default function ClientBand() {
   const track = [...logoClients, ...logoClients];
 
   return (
-    <div className="bg-bg py-8 sm:py-10">
+    <div className="relative z-50 bg-bg py-8 sm:py-10">
       <span className="mb-6 block text-center font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint">
         Trusted by teams at
       </span>

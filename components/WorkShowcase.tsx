@@ -1,178 +1,234 @@
 import Link from "next/link";
-import { caseStudies, workSectionHead, type CaseStudy } from "@/content/case-studies";
+import {
+  caseStudies,
+  getFeaturedCaseStudies,
+  workSectionHead,
+  type CaseStudy,
+} from "@/content/case-studies";
 
 export const workContainerGutter = "mx-auto max-w-content px-4 sm:px-8 lg:px-14";
 
-function SquiggleUnderline() {
+function ArrowUpRight({ className = "" }: { className?: string }) {
   return (
     <svg
-      aria-hidden
-      viewBox="0 0 280 14"
-      className="pointer-events-none absolute -bottom-1 left-0 h-[0.5em] w-full text-bg"
-      preserveAspectRatio="none"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      aria-hidden="true"
+      className={className}
     >
       <path
-        d="M2 9 C 35 3, 70 12, 110 7 S 180 3, 220 8 S 255 11, 278 6"
-        fill="none"
+        d="M3.5 10.5L10.5 3.5M10.5 3.5H5M10.5 3.5V9"
         stroke="currentColor"
-        strokeWidth="2.4"
+        strokeWidth="1.8"
         strokeLinecap="round"
-      />
-      <path
-        d="M8 11 C 50 6, 90 13, 140 9 S 210 5, 270 10"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        opacity="0.7"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-const titleStyles = [
-  "font-display text-[clamp(2rem,3.8vw,3rem)] font-semibold italic leading-[1.05] tracking-[-0.02em]",
-  "font-display text-[clamp(2rem,3.8vw,3rem)] font-bold lowercase leading-none tracking-[-0.03em]",
-  "font-display text-[clamp(2rem,3.8vw,3rem)] font-semibold leading-[1.05] tracking-[-0.02em]",
-  "font-display text-[clamp(2rem,3.8vw,3rem)] font-medium leading-[1.05] tracking-[-0.01em]",
-] as const;
+function CardOverlay({ study }: { study: CaseStudy }) {
+  const overlay = study.cardOverlay;
+  if (!overlay) return null;
 
-export function WorkShowcaseIntro({ dark = true }: { dark?: boolean }) {
-  const textMuted = dark ? "text-bg/55" : "text-ink-soft";
-  const textMain = dark ? "text-bg" : "text-ink";
+  if (overlay.kind === "chip") {
+    return (
+      <div className="absolute inset-x-0 top-[18%] bottom-28 z-[1] flex items-center justify-center px-6 sm:px-8">
+        <div className="flex max-w-[min(100%,20rem)] items-center gap-3 rounded-2xl border border-white/20 bg-white/95 px-3.5 py-3 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+          <span
+            aria-hidden
+            className="h-11 w-11 shrink-0 rounded-xl"
+            style={{
+              background: `linear-gradient(145deg, ${study.cover.accent} 0%, ${study.cover.from} 100%)`,
+            }}
+          />
+          <div className="min-w-0">
+            <p className="text-[13px] font-medium leading-snug text-ink">
+              {overlay.text}
+            </p>
+            {overlay.subtext ? (
+              <p className="mt-0.5 text-[11px] text-ink-soft">{overlay.subtext}</p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (overlay.kind === "statement") {
+    return (
+      <div className="absolute inset-x-0 top-[16%] bottom-24 z-[1] flex items-center justify-center px-6">
+        <p className="max-w-[12ch] text-center font-display text-[clamp(2.25rem,4.5vw,3.5rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-bg">
+          {overlay.text}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-end lg:gap-x-14">
-      <div>
-        <p className={`font-mono text-[11px] uppercase tracking-[0.14em] ${textMuted}`}>
-          {workSectionHead.eyebrow}
-        </p>
-        <h2
-          className={`mt-5 max-w-[18ch] font-display text-[clamp(2rem,4.6vw,3.25rem)] font-semibold leading-[1.12] tracking-[-0.02em] ${textMain}`}
-        >
-          {workSectionHead.headingLead}{" "}
-          <span className="relative inline-block">
-            {workSectionHead.headingAccent}
-            <SquiggleUnderline />
-          </span>
-        </h2>
-      </div>
-      <p
-        className={`max-w-[36ch] text-[clamp(0.95rem,1.2vw,1.125rem)] leading-[1.55] lg:justify-self-end lg:pb-1 ${textMuted}`}
-      >
-        {workSectionHead.description}
+    <div className="absolute inset-x-0 top-[16%] bottom-24 z-[1] flex items-center justify-center px-6">
+      <p className="max-w-[14ch] text-center font-display text-[clamp(2rem,4vw,3rem)] font-semibold italic leading-[1.1] tracking-[-0.02em] text-accent">
+        {overlay.text}
       </p>
     </div>
   );
 }
 
+/** Arcads-style bento card: photo plane, tag, mid overlay, footer CTA row */
 export function WorkShowcaseCard({
   study,
-  index,
-  total = caseStudies.length,
-  dark = true,
+  tall = false,
+  compact = false,
 }: {
   study: CaseStudy;
-  index: number;
-  total?: number;
-  dark?: boolean;
+  /** Spans both rows in the bento */
+  tall?: boolean;
+  /** Light variant for /work detail listing */
+  compact?: boolean;
 }) {
-  const indexLabel = `${String(index + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`;
-  const titleClass = titleStyles[index % titleStyles.length];
-
   return (
     <Link
       href={`/work#${study.slug}`}
-      aria-label={study.client}
-      className={`group relative flex min-h-[min(380px,52vh)] flex-col justify-between overflow-hidden p-6 transition-transform duration-300 ease-standard hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:min-h-[min(440px,56vh)] lg:min-h-[min(480px,58vh)] ${
-        dark ? "bg-[#2A2D33] text-bg" : "bg-surface text-ink"
+      aria-label={`${study.client}: ${study.cardTitle}`}
+      className={`group relative flex flex-col overflow-hidden rounded-[1.75rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${
+        tall
+          ? "min-h-[min(560px,72vh)] md:min-h-0 md:row-span-2"
+          : compact
+            ? "min-h-[280px]"
+            : "min-h-[min(260px,36vh)] md:min-h-0"
       }`}
     >
-      {/* Hover cover — FunTown card image reveal */}
+      {/* Image / atmosphere plane */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-0 transition-opacity duration-300 ease-standard group-hover:opacity-100"
+        className="absolute inset-0 transition-transform duration-500 ease-standard motion-safe:group-hover:scale-[1.03]"
         style={{
-          background: `radial-gradient(circle at 30% 20%, ${study.cover.accent}66 0%, transparent 45%), linear-gradient(160deg, ${study.cover.from} 0%, ${study.cover.to} 100%)`,
+          background: `
+            radial-gradient(ellipse 80% 60% at 30% 20%, ${study.cover.accent}55 0%, transparent 55%),
+            linear-gradient(165deg, ${study.cover.from} 0%, ${study.cover.to} 55%, #0a0c10 100%)
+          `,
         }}
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-ink/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:18px_18px] opacity-40"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent"
       />
 
-      <span
-        className={`relative z-10 font-mono text-[11px] uppercase tracking-[0.08em] ${
-          dark ? "text-bg/40 group-hover:text-bg/70" : "text-ink-faint"
-        }`}
-      >
-        {indexLabel}
-      </span>
+      {!compact ? <CardOverlay study={study} /> : null}
 
-      <div className="relative z-10 flex flex-1 flex-col justify-center py-8">
-        <h3 className={`${titleClass} ${dark ? "text-bg" : "text-ink"}`}>
-          {study.client}
-        </h3>
+      {/* Top tag */}
+      <div className="relative z-10 flex items-start p-4 sm:p-5">
+        <span className="rounded-md bg-bg/20 px-2.5 py-1 text-[12px] font-medium tracking-wide text-bg backdrop-blur-md">
+          {study.cardTag}
+        </span>
       </div>
 
-      <div className="relative z-10 flex flex-wrap gap-2">
-        {study.tags.map((tag) => (
-          <span
-            key={tag}
-            className={`inline-flex items-center rounded-full px-4 py-2 text-[13px] font-medium leading-none transition-colors duration-200 ${
-              dark
-                ? "bg-bg text-ink group-hover:bg-bg/95"
-                : "border border-line-strong text-ink-soft"
-            }`}
-          >
-            {tag}
-          </span>
-        ))}
+      {/* Footer: accent arrow + title / blurb */}
+      <div className="relative z-10 mt-auto flex items-end gap-3.5 p-4 sm:gap-4 sm:p-5">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-bg transition-colors duration-200 group-hover:bg-accent-deep sm:h-11 sm:w-11">
+          <ArrowUpRight className="sm:h-4 sm:w-4" />
+        </span>
+        <div className="min-w-0 pb-0.5">
+          <p className="font-display text-[15px] font-semibold leading-snug tracking-[-0.01em] text-bg sm:text-[16px]">
+            {study.cardTitle}{" "}
+            <span className="font-normal text-bg/65">{study.cardBlurb}</span>
+          </p>
+        </div>
       </div>
     </Link>
   );
 }
 
-/** FunTown-style: horizontal 3-up card row, page scrolls vertically */
-export function WorkShowcaseGrid({ dark = true }: { dark?: boolean }) {
+/** Homepage bento: 1 tall + 2 stacked (Arcads layout) */
+export function WorkShowcaseGrid() {
+  const [featured, ...stacked] = getFeaturedCaseStudies();
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {caseStudies.map((study, index) => (
-        <WorkShowcaseCard
-          key={study.slug}
-          study={study}
-          index={index}
-          dark={dark}
-        />
+    <div className="grid grid-cols-1 gap-3 md:min-h-[min(640px,78vh)] md:grid-cols-2 md:grid-rows-2 md:gap-4 lg:gap-5">
+      <WorkShowcaseCard study={featured} tall />
+      {stacked.map((study) => (
+        <WorkShowcaseCard key={study.slug} study={study} />
       ))}
     </div>
   );
 }
 
-export function WorkShowcaseSection({ dark = true }: { dark?: boolean }) {
+export function WorkShowcaseSection({
+  dark = true,
+  overlapHero = false,
+  embedded = false,
+  animateOpen = false,
+}: {
+  dark?: boolean;
+  /** Pull Work up over the second half of the hero pin so it opens on the filled circle */
+  overlapHero?: boolean;
+  /** Inside sticky hero — tighter padding so pin ends flush with content */
+  embedded?: boolean;
+  /** FunTown-style: children get data attrs for scroll-driven open */
+  animateOpen?: boolean;
+}) {
   return (
     <section
       id="work"
-      className={`relative ${dark ? "bg-ink text-bg" : "bg-bg text-ink"}`}
+      className={`relative z-20 ${overlapHero ? "-mt-[100svh]" : ""} ${
+        dark ? "bg-ink text-bg" : "bg-bg text-ink"
+      }`}
     >
       <div
-        className={`${workContainerGutter} pb-24 pt-16 sm:pb-28 sm:pt-20 lg:pb-32 lg:pt-24`}
+        className={`${workContainerGutter} ${
+          embedded
+            ? "pb-16 pt-[max(4.5rem,calc(var(--site-header-offset)+1.25rem))] sm:pb-20 sm:pt-[max(5rem,calc(var(--site-header-offset)+1.5rem))]"
+            : overlapHero || animateOpen
+              ? "pb-24 pt-[max(4rem,calc(var(--site-header-offset)+0.75rem))] sm:pb-28 sm:pt-[max(4.5rem,calc(var(--site-header-offset)+1rem))] lg:pb-32 lg:pt-[max(5rem,calc(var(--site-header-offset)+1.25rem))]"
+              : "pb-24 pt-16 sm:pb-28 sm:pt-20 lg:pb-32 lg:pt-24"
+        }`}
       >
-        <WorkShowcaseIntro dark={dark} />
-        <div className="mt-14 sm:mt-16 lg:mt-20">
-          <WorkShowcaseGrid dark={dark} />
+        <h2
+          data-work-open-headline={animateOpen ? "" : undefined}
+          className={`mx-auto max-w-[18ch] text-balance text-center font-display text-[clamp(1.85rem,4.2vw,3rem)] font-semibold leading-[1.15] tracking-[-0.025em] text-bg ${
+            animateOpen ? "opacity-0" : ""
+          }`}
+        >
+          {workSectionHead.headline}
+        </h2>
+
+        <div
+          data-work-open-grid={animateOpen ? "" : undefined}
+          className={`mt-10 sm:mt-12 lg:mt-14 ${animateOpen ? "opacity-0" : ""}`}
+        >
+          <WorkShowcaseGrid />
         </div>
-        <div className="mt-10 flex justify-center sm:mt-12">
+
+        <div
+          data-work-open-cta={animateOpen ? "" : undefined}
+          className={`mt-10 flex justify-center sm:mt-12 ${animateOpen ? "opacity-0" : ""}`}
+        >
           <Link
             href={workSectionHead.ctaHref}
-            className={`inline-flex h-12 items-center rounded-full border px-8 text-[15px] font-medium transition-[background,border-color,color] duration-200 hover:border-accent hover:bg-accent hover:text-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-              dark ? "border-bg/30 text-bg" : "border-line-strong text-ink"
-            }`}
+            className="inline-flex h-12 items-center rounded-full border border-bg/30 px-8 text-[15px] font-medium text-bg transition-[background,border-color,color] duration-200 hover:border-accent hover:bg-accent hover:text-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {workSectionHead.ctaLabel}
           </Link>
         </div>
       </div>
     </section>
+  );
+}
+
+/** Flat grid for /work detail page (all studies) */
+export function WorkShowcaseCardGrid({ dark = false }: { dark?: boolean }) {
+  void dark;
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {caseStudies.map((study) => (
+        <WorkShowcaseCard key={study.slug} study={study} compact />
+      ))}
+    </div>
   );
 }

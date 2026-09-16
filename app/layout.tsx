@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Onest, IBM_Plex_Mono } from "next/font/google";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 const onestSans = Onest({
@@ -38,9 +39,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${onestDisplay.variable} ${onestSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col overflow-x-hidden bg-bg font-sans text-ink">
-        <SiteNav />
-        <main className="min-w-0 flex-1">{children}</main>
-        <SiteFooter />
+        <SmoothScroll>
+          <SiteNav />
+          <main className="min-w-0 flex-1">{children}</main>
+          <SiteFooter />
+        </SmoothScroll>
       </body>
     </html>
   );
